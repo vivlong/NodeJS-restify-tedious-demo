@@ -11,12 +11,21 @@ var server = app.createServer({
     name: 'WebApp RESTful Service',  
     versions: ['1.0.0']  
 });
+/*app.CORS.ALLOW_HEADERS.push("Access-Control-Allow-Origin");*/
 server.use(app.acceptParser(server.acceptable));
 server.use(app.queryParser());
 server.use(app.dateParser());
+server.use(app.jsonp());
+server.use(app.CORS());
 server.use(app.gzipResponse());
 server.use(app.bodyParser());
 server.use(app.fullResponse()); 
+server.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 server.get('/', function (req, res, next) {
     res.send('hello');
@@ -55,6 +64,7 @@ server.get('/tables/plcp1/:key/:value/:status', function (req, res, next) {
 });
 
 server.put('/tables/plcp1/:value', function (req, res, next) {
+	res.setHeader('Access-Control-Allow-Origin','*');
     var sql = "update plcp1 set StatusCode='APP' where TrxNo in (" + req.params.value + ")";
     //console.log(sql);
     db.execSQLupdate(sql, res);
@@ -63,10 +73,10 @@ server.put('/tables/plcp1/:value', function (req, res, next) {
 
 
 
-/* 
 server.listen(8085, function(){
     console.log('%s listening at %s', server.name, server.url);
-});*/
+});
+/* 
 server.listen(process.env.PORT, function(){
     //console.log('%s listening at %s', server.name, server.url);
-});
+});*/

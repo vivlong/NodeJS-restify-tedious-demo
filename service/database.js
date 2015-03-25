@@ -1,8 +1,10 @@
+var app             = require('restify');
 var Connection      = require('tedious').Connection;
 var Request         = require('tedious').Request;
+var TYPES           = require('tedious').TYPES;
 
 var config = {
-    server: '218.6.71.82',
+    server: '192.168.0.230',
     userName: 'sa',
     password: 'p@ssw0rd$',
     options: {
@@ -13,7 +15,8 @@ var config = {
             token: false,
             log: true
         },
-        database: 'CC802Freight'
+        database: 'CC802Freight',
+        rowCollectionOnDone: 'true'
     }
 };
 
@@ -55,16 +58,32 @@ Database.prototype.execSQLselectCol = function(sql, res){
 		var request = new Request(sql, function(err, rowCount) {
 			if (err) {
 				res.send(400,err);
-			} else {
-				res.send(objResult);
-			}
-		});
+            } else {
+                res.send(objResult);
+            }
+        });
 		request.on('row', function(columns) {
 			var objRows=[];
 			columns.forEach(function(column) {
-				objRows.push({'colName':column.metadata.colName,'value':column.value});
+				objRows.push({ key:column.metadata.colName, value:column.value });
 			});
 			objResult.push(objRows);
+		});
+		connection.execSql(request);
+	});
+};
+
+Database.prototype.execSQLupdate = function(sql, res){
+    'use strict';
+    var connection = new Connection(config);
+	connection.on('connect', function(err) {
+		var objResult=[];
+		var request = new Request(sql, function(err, rowCount) {
+			if (err) {
+                res.send({status: "failed"});
+			}else{
+                res.send({status: "success"});
+            }
 		});
 		connection.execSql(request);
 	});

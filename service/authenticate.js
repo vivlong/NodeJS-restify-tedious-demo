@@ -13,7 +13,7 @@ Authenticate.prototype.login = function (req, res, next) {
     if (logininfo.strUserName === undefined || logininfo.strPassword === undefined) {
         return next(new app.InvalidArgumentError('User Name must be supplied'));
     }    
-    var sql = "SELECT count(*) FROM saus1 WHERE UserId = '" + logininfo.strUserName + "' and Password = '" + logininfo.strPassword + "'";
+    var sql = "SELECT count(*) FROM saus1 WHERE UserId = '" + logininfo.strUserName + "' or Password = '" + logininfo.strPassword + "'";
     db.execSQLselectCount(sql, res);
 	return next();
 };
